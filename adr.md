@@ -5,7 +5,7 @@ date: 04.12.2024
 decision-makers: Nicole Neufeld
 ---
 
-# {short title, representative of solved problem and found solution}
+# Entscheidung für React als Frontend-Framework
 
 ## Context and Problem Statement
 
