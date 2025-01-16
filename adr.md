@@ -54,8 +54,6 @@ Wie stellen wir sicher, dass die Entscheidung für Vanilla Code auch wirklich um
 
 ### React
 
-### React
-
 **Pro**
 * **Wiederverwendbare Komponenten:** React bietet eine komponentenbasierte Struktur, die es leicht macht, wiederverwendbare UI-Elemente zu erstellen.
 * **Große Community und Ökosystem:** Zahlreiche Bibliotheken und Lösungen (wie React-Dropzone) helfen, gängige Anforderungen schnell umzusetzen.
