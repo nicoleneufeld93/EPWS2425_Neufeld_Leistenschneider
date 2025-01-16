@@ -1,10 +1,11 @@
 <>---
+# These are optional metadata elements. Feel free to remove any of them.
 status: accepted
-date: 16.01.2025
+date: 04.12.2024
 decision-makers: Nicole Neufeld
 ---
 
-# Entscheidung für Vanilla Code anstelle von React
+# Entscheidung für React als Frontend-Framework
 
 ## Context and Problem Statement
 
@@ -13,58 +14,56 @@ Im Rahmen eines Uni-Projekts wird eine CMS-Webseite entwickelt, die es Nutzern e
 ## Decision Drivers
 
 * Die Benutzeroberfläche sollte intuitiv und einfach zu bedienen sein, um ein gutes Nutzererlebnis zu gewährleisten.
-* Funktionen wie Drag-and-Drop und Dateimanipulationen benötigen keine umfangreiche Framework-Abstraktion und sollten ohne viel Overhead realisiert werden.
-* Eine einfache, wartbare Codebasis ohne unnötige Komplexität ist wichtig, um das Projekt effizient umzusetzen.
-* Der Verzicht auf unnötige Tools und Build-Prozesse hilft, den Fokus auf die Kernfunktionalitäten zu legen und den Entwicklungsaufwand zu minimieren.
+* Funktionen wie Drag-and-Drop erfordern eine schnelle und effiziente Verwaltung des UI-Zustands.
+* Es sollte einfach sein, das System in Zukunft mit weiteren Features zu erweitern.
+* Ein gutes Ökosystem und eine starke Community helfen bei der Lösung von Problemen und der schnellen Umsetzung von Ideen.
 
 
 ## Considered Options
 
 * **React** – Ein populäres JavaScript-Framework, das auf Komponenten basiert und eine gute Unterstützung für die Entwicklung interaktiver und zustandsgesteuerter UIs bietet.
-* **Vanilla Code** – Verwendung von reinem HTML, CSS und JavaScript, ohne zusätzliche Frameworks oder Bibliotheken.
+* **Vanilla-Code** - 
 
 
 ## Decision Outcome
 
-CGewählte Option: **Vanilla Code** (HTML, CSS und JavaScript), da dies am besten zu den spezifischen Anforderungen des Projekts passt. Für eine einfache Single-Page-Anwendung ohne komplexe Logik ist Vanilla Code aufgrund der geringen Komplexität die bessere Wahl.
+Chosen option: **React**, da es perfekt zu den Anforderungen des Projekts passt. React ermöglicht eine schnelle Entwicklung mit einem komponentenbasierten Ansatz und ist besonders gut für interaktive Webanwendungen geeignet. Für das geplante CMS-Projekt, das eine dynamische Benutzeroberfläche mit Drag-and-Drop, Statusanzeigen und Dateioptimierungsfunktionen benötigt, ist React aufgrund seiner Flexibilität eine gute Wahl.
 
-* **Gut**, weil Vanilla Code keine zusätzlichen Bibliotheken oder Build-Prozesse erfordert, was die Komplexität reduziert und die Ladezeit der Seite verbessert.
-* **Gut**, weil der Code klein und übersichtlich bleibt, was die Wartbarkeit und Erweiterbarkeit fördert.
-* **Schlecht**, weil der Entwicklungsprozess für bestimmte interaktive Funktionen (wie Drag-and-Drop) etwas mehr Aufwand erfordert als in einem Framework, das solche Funktionen direkt unterstützt.
-
+* **Gut**, weil React es ermöglicht, wiederverwendbare Komponenten zu erstellen, was die Wartbarkeit und Erweiterbarkeit des Projekts fördert.
+* **Gut**, weil die React-Community viele Lösungen und Bibliotheken bietet, die die Entwicklung beschleunigen (z.B. React-Dropzone für Drag-and-Drop).
+* **Gut**, weil Reacts Virtual DOM eine gute Performance bei der Aktualisierung der Benutzeroberfläche ermöglicht.
+* **Schlecht**, weil React eine zusätzliche Build- und Konfigurationsphase (z.B. mit Webpack und Babel) erfordert, was für kleinere Projekte eine gewisse Komplexität hinzufügt.
+* **Schlecht**, weil die Lernkurve für Anfänger im Vergleich zu anderen Frameworks wie Vue.js etwas steiler sein kann.
 
 ### Confirmation
 
-Wie stellen wir sicher, dass die Entscheidung für Vanilla Code auch wirklich umgesetzt wird?
+Wie stellen wir sicher, dass die Entscheidung, React zu verwenden, auch wirklich umgesetzt wird?
 
-* **Code-Überprüfung:** Der Code wird regelmäßig im Team überprüft, um sicherzustellen, dass die grundlegenden JavaScript- und DOM-Manipulationen effektiv und wartbar sind.
-* **Benutzeroberflächen-Test:** Die Benutzeroberfläche wird getestet, um sicherzustellen, dass sie einfach zu bedienen ist und alle Funktionen wie Upload, Statusanzeigen und Drag-and-Drop wie gewünscht funktionieren.
-* **Überprüfung der Anforderungen:** Wir vergleichen die Entscheidung mit den ursprünglichen Anforderungen des Projekts, um sicherzustellen, dass sie zu den Zielen passt und die Nutzung von Vanilla Code keine unnötige Einschränkung darstellt.
+* **Code-Überprüfung:** Der Code wird regelmäßig im Team überprüft, um sicherzustellen, dass wir die React-Standards einhalten und der Code gut strukturiert bleibt.
+
+* **Benutzeroberflächen-Test:** Die Benutzeroberfläche wird getestet, um sicherzustellen, dass sie einfach zu bedienen ist und alles funktioniert.
+
+* **Überprüfung der Anforderungen:** Wir vergleichen die Entscheidung mit den ursprünglichen Anforderungen des Projekts, um sicherzustellen, dass sie zu den Zielen passt.
 
 ## Pros and Cons of the Options
 
-### Vanilla Code
-
-**Pro**
-* **Keine zusätzliche Komplexität:** Es wird keine zusätzliche Bibliothek oder Framework benötigt, was die Anwendung leichter und schneller macht.
-* **Bessere Kontrolle:** Man kann die Interaktivität und Funktionalität genau nach Bedarf gestalten.
-* **Schneller Einstieg:** Es sind keine externen Tools wie Webpack oder Babel erforderlich, was die Setup-Zeit minimiert.
-* **Einfachere Wartung:** Der Code bleibt einfach und leicht nachvollziehbar, da keine externen Abstraktionen oder Konventionen von Frameworks vorhanden sind.
-
-**Contra**
-* **Mehr Entwicklungsaufwand für Interaktivität:** Bestimmte Features wie Drag-and-Drop oder Statusanzeigen müssen selbstständig implementiert werden, was zusätzlichen Aufwand bedeutet.
-* **Weniger Flexibilität bei großen Erweiterungen:** Wenn das Projekt in Zukunft stark wächst, könnte es schwieriger sein, die Struktur mit reinem Vanilla Code zu skalieren, da moderne Frameworks viele nützliche Tools (wie State-Management) bereits bieten.
-
-
-### React
-
 ### React
 
 **Pro**
-* **Wiederverwendbare Komponenten:** React bietet eine komponentenbasierte Struktur, die es leicht macht, wiederverwendbare UI-Elemente zu erstellen.
-* **Große Community und Ökosystem:** Zahlreiche Bibliotheken und Lösungen (wie React-Dropzone) helfen, gängige Anforderungen schnell umzusetzen.
-* **Virtual DOM für Performance:** React optimiert die Benutzeroberfläche und minimiert unnötige DOM-Manipulationen, was die Performance steigern kann.
+* Weit verbreitet und gut dokumentiert
+* **Komponentenbasiert und Skalierbarkeit**: React teilt die Anwendung in kleine, wiederverwendbare Komponenten, was den Code sauber und wartbar hält.
+* **Interaktive Benutzeroberflächen**: React bietet eine einfache Möglichkeit, komplexe und interaktive UI-Elemente zu erstellen
 
 **Contra**
-* **Erhöhte Komplexität für kleinere Projekte:** React bringt zusätzliche Komplexität mit sich, die für dieses Projekt nicht notwendig ist.
-* **Zusätzliche Build-Tools erforderlich:** React benötigt Tools wie Webpack und Babel, was für ein einfaches CMS unnötig viel Setup und Konfiguration bedeutet.
+* **Komplexität für kleinere Projekte**: Wenn das Projekt klein bleibt, könnte React unnötig komplex sein und mehr Aufwand verursachen als nötig.
+* **Erfordert zusätzliche Tools**: Für eine vollständige Entwicklung benötigen wir zusätzliche Tools wie Webpack und Babel, was den initialen Aufwand erhöht.
+
+### Vue.js
+
+**Pro**
+* **Einfachere Integration und Setup:** Vue.js lässt sich schnell in bestehende Projekte integrieren und ist besonders gut für kleinere bis mittelgroße Anwendungen geeignet
+* weniger umfassend als React
+
+**Contra**
+* weniger verbreitet
+* schwieriger zu skalieren
