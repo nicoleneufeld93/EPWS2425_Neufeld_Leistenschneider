@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entwicklungsprojekt</title>
+    <script src="./js/dashboard.js" defer></script>
+
+    <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="./index.html">Startseite</a></li>
+                <li><a href="#">Über Uns</a></li>
+                <li><a href="#">Kontakt</a></li>
+            </ul>
+        </nav>
+        <h1>Dashboard</h1>
+        <p>Höchste Qualität, kleinste Größe, großer Effekt</p>
+    </header>
+    <main>
+        <section class="container-dashboard">
+            <div class="preset-container">
+                            <!-- Linke Seite: Preset-Auswahl -->
+                    <select id="preset-dropdown" onchange="handlePresetChange()">
+                    <option value="default">Preset auswählen</option>
+                    <option value="preset1">Preset 1</option>
+                    <option value="preset2">Preset 2</option>
+                    <option value="preset3">Preset 3</option>
+                    <option value="custom">Individuelles Preset</option>
+                </select>
+                <p>Preset auswählen und im nächsten Schritt den personalisierten Link generieren</p>
+                <div class="preset-input">
+                    <input type="text" id="custom-preset" style="display: none;" placeholder="Eigenes Preset benennen">
+                    <button id="presetSelectButton" style="display: none;" onclick="showPresetSelect()">Preset auswählen</button>
+                    <button id="savePresetButton" style="display: none;" onclick="savePreset()">Preset speichern</button>
+                   
+                </div>
+            </div>
+            <div class="link-container">
+              <div class="button-container">
+                <button id="generateLinkButton" style="display: none;" onclick="generateLink()">Link generieren</button>
+            </div>
+                <p id="linkDisplay"></p>
+                <input type="text" id="generateLink" style="display: none;" readonly placeholder="Generierter Link">
+            </div>
+            <div class="copy-link-container">
+            <div class="button-container">
+                <button id="copyLink" data-copy="#generateLink">Link kopieren</button>
+            </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

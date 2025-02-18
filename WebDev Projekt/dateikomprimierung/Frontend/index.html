@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entwicklungsprojekt</title>
+    <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#">Startseite</a></li>
+                <li><a href="#">Über Uns</a></li>
+                <li><a href="#">Kontakt</a></li>
+            </ul>
+        </nav>
+        <h1>Dashboard</h1>
+        <p>Höchste Qualität, kleinste Größe, großer Effekt</p>
+    </header>
+
+    <main>
+        <div class="container">
+         <div class="upload-box">
+            <!-- Linke Seite: Datei-Upload -->
+            <div id="drop-zone">
+                    <p>Dateien hier ablegen</p>
+                    <button id="file-select">Dateien auswählen</button>
+                    <input type="file" id="file-input" multiple>
+                </div>
+                <div class="wrapper"><ul id="file-list"></ul>
+                </div>
+                <!-- Fortschritt für Upload -->
+                <div class="progress-container">
+                    <span>Upload-Fortschritt:</span>
+                    <div class="progress-bar" id="upload-progress-bar"></div>
+                </div>
+                <span id="upload-progress-text">0%</span>
+                <button id="compress-selected">Ausgewählte Dateien komprimieren</button>
+            </div>
+
+            <!-- Rechte Seite: Komprimierung -->
+            <div class="status-box">
+                <h2>Komprimierung</h2>
+                <ul id="compressed-files"></ul>
+
+                <!-- Fortschritt für Komprimierung -->
+                <div class="progress-container">
+                    <span>Komprimierungs-Fortschritt:</span>
+                    <div class="progress-bar" id="compress-progress-bar"></div>
+                </div>
+                <span id="compress-progress-text">0%</span>
+
+                <button id="download-selected">Ausgewählte Dateien herunterladen</button>
+                <button id="download-all">Alle Dateien herunterladen</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Credits: ...</p>
+    </footer>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>
