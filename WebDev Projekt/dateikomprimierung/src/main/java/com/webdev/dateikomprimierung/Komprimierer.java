@@ -1,4 +1,5 @@
 package com.webdev.dateikomprimierung;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -6,85 +7,109 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.webdev.dateikomprimierung.model.User;
+import com.webdev.dateikomprimierung.service.UserService;
+
 @RestController
 @RequestMapping("/api/image-compression")
 public class Komprimierer {
 
-        Path relativePath = Paths.get("compressed-images\\").normalize();
-        private final String OUTPUT_DIRECTORY = relativePath.toAbsolutePath().toString();
-        //"../../../../../../compressed-images\\"
-    
-    //Anfrage für Komprimierung, falls keine quality angegeben wird, liegt der standard Wert bei 75
-        @PostMapping("/compress")
-        public String compressImage(@RequestParam("image") MultipartFile image,
-                                    @RequestParam(value = "quality", defaultValue = "50") int quality) {
+    Path relativePath = Paths.get("compressed-images\\").normalize();
+    private final String OUTPUT_DIRECTORY = relativePath.toAbsolutePath().toString();
 
-            //Test, ob der Ordner besteht, sonst neu erstellen
-            try {
-                File directory = new File(OUTPUT_DIRECTORY);
-                if (!directory.exists()) {
-                    directory.mkdirs();
-                }
-                // Gibt es das Bild, oder nicht?
-                String originalFilename = image.getOriginalFilename();
-                if (originalFilename == null) {
-                    return "Invalid file. Please upload a valid image.";
-                }
+    @Autowired
+    private UserService userService; // UserService für den Zugriff auf User-Daten
 
-                //Test, ob die Datei wirklich ein Bild ist mit verschiedenen Bildformaten
-                String contentType = image.getContentType();
-                List<String> allowedImageTypes = Arrays.asList("image/png", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/webp");
-                if (!allowedImageTypes.contains(contentType)) {
-                    return "Die Datei ist kein unterstütztes Bildformat.";
-                }
-                //Test, ob das Guthaben ausreicht. Sp�ter Abfrage des Guthabens aus der Datenbank
-                int guthaben=0;
-                System.out.println("Das Guthaben betr�gt:" + guthaben);
-                if (guthaben <1){
-                    return "Guthaben reicht nicht aus";
-                }
-    
-                // Define input and output files
-                File inputFile = new File(OUTPUT_DIRECTORY, originalFilename);
-                image.transferTo(inputFile); // Bild temporär hier zwischenspeichern um es zu verarbeiten
-                System.out.println("Output Directory: " + OUTPUT_DIRECTORY);
-                //String outputFileName = "compressed-" + originalFilename;
-                String outputFileName = "compressed-" + originalFilename;
-                File outputFile = new File(OUTPUT_DIRECTORY, outputFileName);
-    
-                // FFMPeg Befehl
-                ProcessBuilder processBuilder = new ProcessBuilder(
-                        "ffmpeg",
-                        "-i", inputFile.getAbsolutePath(), // Input 
-                        "-qscale:v", String.valueOf(quality), // Komprimierungsqualität, je niedriger die Zahl, desto weniger Komprimierung
-                        outputFile.getAbsolutePath() // Output file
-                );
-    
-                Process process = processBuilder.start();
-                int exitCode = process.waitFor();
-    
-                // Temporäre Datei wieder löschen
-                inputFile.delete();
-    
-                //Fehler oder Erfolg ausgeben
-                if (exitCode == 0) {
-                    guthaben--;
-                    System.out.println("Das Guthaben betr�gt:" + guthaben);
-                    return "Image successfully compressed and saved to: " + outputFile.getAbsolutePath();
-                } else {
-                    return "Error during compression. FFmpeg exited with code: " + exitCode;
-                }
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-                return "Error occurred during image compression: " + e.getMessage();
+    // Komprimierung des Bildes
+    @PostMapping("/compress")
+    public String compressImage(@RequestParam("image") MultipartFile image,
+                                @RequestParam("userId") Long userId) {
+
+        try {
+            File directory = new File(OUTPUT_DIRECTORY);
+            if (!directory.exists()) {
+                directory.mkdirs();
             }
+
+            String originalFilename = image.getOriginalFilename();
+            if (originalFilename == null) {
+                return "Invalid file. Please upload a valid image.";
+            }
+
+            String contentType = image.getContentType();
+            List<String> allowedImageTypes = Arrays.asList("image/png", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/webp");
+            if (!allowedImageTypes.contains(contentType)) {
+                return "Die Datei ist kein unterstütztes Bildformat.";
+            }
+
+            // Hole die Komprimierungsrate des Nutzers aus der DB
+            User user = userService.getUserById(userId);
+            int komprimierungsrate = user != null ? user.getKomprimierung() : 50;  // Standardwert 50, falls kein User gefunden wird
+
+            // Speicher das Bild temporär
+            File inputFile = new File(OUTPUT_DIRECTORY, originalFilename);
+            image.transferTo(inputFile);
+            String outputFileName = "compressed-" + originalFilename;
+            File outputFile = new File(OUTPUT_DIRECTORY, outputFileName);
+
+            // FFmpeg Komprimierung
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "ffmpeg",
+                    "-i", inputFile.getAbsolutePath(),
+                    "-qscale:v", String.valueOf(komprimierungsrate),
+                    outputFile.getAbsolutePath()
+            );
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+
+            inputFile.delete();
+
+            if (exitCode == 0) {
+                // Generiere den Zugriffslink für den Benutzer
+                String zugriffslink = "/api/image-compression/download/" + outputFileName;
+                if (user != null) {
+                    userService.setZugriffslink(user, zugriffslink); // Setze den Zugriffslink
+                    return "Image successfully compressed. Download it here: " + zugriffslink;
+                } else {
+                    return "User not found.";
+                }
+            } else {
+                return "Error during compression. FFmpeg exited with code: " + exitCode;
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return "Error occurred during image compression: " + e.getMessage();
         }
     }
 
-
-
+    // Endpunkt zum Herunterladen des komprimierten Bildes
+    @GetMapping("/download/{filename}")
+    public ResponseEntity<FileSystemResource> downloadCompressedImage(@PathVariable("filename") String filename) {
+        try {
+            File file = new File(OUTPUT_DIRECTORY, filename);
+            if (!file.exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            FileSystemResource resource = new FileSystemResource(file);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+}
