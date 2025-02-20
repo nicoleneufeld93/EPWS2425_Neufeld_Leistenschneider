@@ -24,49 +24,35 @@ function resetButtons() {
     document.getElementById('presetSelectButton').style.display = 'none';
     document.getElementById('savePresetButton').style.display = 'none';
     document.getElementById('generateLinkButton').style.display = 'none';
-    document.getElementById('linkDisplay').innerHTML = ''; // Linkanzeige zurücksetzen
-}
-
-function showPresetSelect() {
-    alert("Preset-Auswahl wurde angezeigt");
-    // Hier könnte eine Logik zum Anzeigen von verfügbaren Presets implementiert werden.
-}
-
-function savePreset() {
-    alert("Individuelles Preset wurde gespeichert.");
-    // Hier könnte eine Logik zum Speichern des individuellen Presets implementiert werden.
+    document.getElementById('link').innerHTML = ''; // Linkanzeige zurücksetzen
 }
 
 function generateLink() {
-    const PresetSelect = document.getElementById('preset-dropdown');
-    const selectedPreset = PresetSelect.value;
-        
-    let presetName = selectedPreset;
-
-    // Falls "Individuelles Preset" gewählt wurde, nutze den benutzerdefinierten Namen
-    if (selectedPreset === 'custom') {
-        presetName = document.getElementById('custom-preset').value.trim();
-        if (!presetName) {
-            alert('Bitte gib einen Namen für das Preset ein.');
-            return;
-            }
-        }
-
-    // Eindeutige Benutzer-ID generieren
-    const userId = Math.floor(Math.random() * 1000000);
-
-    // Personalisierten Link mit Benutzer-ID erstellen
-    const link = `http://127.0.0.1:5500/WebDev%20Projekt/dateikomprimierung/Frontend/index.html?user=${userId}&preset=${encodeURIComponent(presetName)}`;
-
-    // Link anzeigen
-    document.getElementById('generateLink').innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
-
-    // Link in Eingabefeld einfügen
-    const linkInput = document.getElementById('generateLink');
-    linkInput.value = link;
-    linkInput.style.display = 'block';
+    if (!userId) {
+        alert("Fehler: Benutzer-ID wurde nicht gesetzt.");
+        return;
     }
-    
+
+    fetch("http://localhost:8080/users/" + userId) // Benutzerdaten abrufen
+    .then(response => response.json())
+    .then(data => {
+        if (data.zugriffslink) {
+            const link = "http://localhost:8080" + data.zugriffslink;
+            const linkInput = document.getElementById('generateLink');
+            linkInput.value = link;
+            linkInput.style.display = 'block';
+        
+        // Link anzeigen
+    alert("Der Upload-Link: " + link);
+        } else { 
+            alert("Fehler: Kein Zugriffslink gefunden.");
+        }
+    })
+    .catch(error => {
+        alert("Fehler beim Generieren des Links: " + error.message);
+    });
+}
+
 // Link kopieren
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("copyLink").addEventListener("click", function () {
@@ -81,3 +67,55 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+document.getElementById("userForm").addEventListener("submit", function (event) {
+    event.preventDefault();  // Verhindert das normale Abschicken des Formulars
+    createUser();
+});
+
+let userId = null; // Globaler Scope für die Benutzer-ID
+
+function createUser() {
+    const userData = {
+        vorname: document.getElementById("vorname").value,
+        nachname: document.getElementById("nachname").value,
+        komprimierung: document.getElementById("komprimierung").value
+    };
+    
+    fetch("http://localhost:8080/users", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Falls der Server Fehler zurückgibt, wird eine Fehlermeldung ausgegeben
+            return response.json().then(err => {
+                throw new Error(`Fehler: ${response.status} - ${err.message || 'Unbekannter Fehler'}`);
+            });
+        }
+        return response.json(); // Erfolgreiche Antwort wird hier zurückgegeben
+    })
+    .then(data => {
+        if (data.id) {
+            // Wenn die ID erfolgreich zurückgegeben wird
+            alert("User wurde erstellt! ID: " + data.id);
+            userId = data.id; // Die Benutzer-ID wird gespeichert
+            const uploadLink = "http://localhost:8080" + data.zugriffslink;
+            alert("Dein Upload-Link: " + uploadLink);
+        } else {
+            alert("Fehler beim Erstellen des Users, keine ID erhalten.");
+        }
+    })
+    .catch(error => {
+        alert("Fehler beim Erstellen des Users: " + error.message);
+    });
+}
+
+    function enableUploadImageButton() {
+        const uploadButton = document.getElementById('uploadImageButton');
+        if (uploadButton) {
+          uploadButton.disabled = false; // oder eine andere Logik, um den Button zu aktivieren
+        }
+      }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entwicklungsprojekt</title>
-    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">    
 </head>
 <body>
     <header>
@@ -21,38 +21,30 @@
 
     <main>
         <div class="container">
-         <div class="upload-box">
-            <!-- Linke Seite: Datei-Upload -->
-            <div id="drop-zone">
+            <div class="upload-box">
+                <div id="drop-zone">
                     <p>Dateien hier ablegen</p>
-                    <button id="file-select">Dateien auswählen</button>
-                    <input type="file" id="file-input" multiple>
+                    <input type="file" id="imageUpload" multiple>
+                    <button id="uploadImageButton">Bild hochladen</button>
                 </div>
-                <div class="wrapper"><ul id="file-list"></ul>
+                <div class="wrapper">
+                    <ul id="file-list"></ul>
                 </div>
-                <!-- Fortschritt für Upload -->
-                <div class="progress-container">
-                    <span>Upload-Fortschritt:</span>
-                    <div class="progress-bar" id="upload-progress-bar"></div>
-                </div>
-                <span id="upload-progress-text">0%</span>
                 <button id="compress-selected">Ausgewählte Dateien komprimieren</button>
             </div>
 
-            <!-- Rechte Seite: Komprimierung -->
             <div class="status-box">
                 <h2>Komprimierung</h2>
-                <ul id="compressed-files"></ul>
-
-                <!-- Fortschritt für Komprimierung -->
+                <div class="wrapper">
+                    <ul id="compressedFiles"></ul>
+                </div>
                 <div class="progress-container">
                     <span>Komprimierungs-Fortschritt:</span>
                     <div class="progress-bar" id="compress-progress-bar"></div>
+                    <span id="compress-progress-text">0%</span>
                 </div>
-                <span id="compress-progress-text">0%</span>
-
-                <button id="download-selected">Ausgewählte Dateien herunterladen</button>
-                <button id="download-all">Alle Dateien herunterladen</button>
+                <button id="downloadSelectedButton">Ausgewählte Dateien herunterladen</button>
+                <button id="downloadAllButton">Alle Dateien herunterladen</button>
             </div>
         </div>
     </main>
@@ -61,6 +53,6 @@
         <p>Credits: ...</p>
     </footer>
 
-    <script src="./js/script.js"></script>
+    <script src="/js/script.js"></script>
 </body>
 </html>

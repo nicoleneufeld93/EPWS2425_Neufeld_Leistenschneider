@@ -12,6 +12,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,18 @@ import com.webdev.dateikomprimierung.service.UserService;
 @RequestMapping("/api/image-compression")
 public class Komprimierer {
 
+@GetMapping("/upload")
+public ResponseEntity<Void> redirectToIndex(@RequestParam("userId") Long userId) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Location", "/index.html?userId=" + userId);  // Füge userId zur Weiterleitung hinzu
+    return new ResponseEntity<>(headers, HttpStatus.FOUND);
+}
+
+    public String getMethodName(@RequestParam String param) {
+        return new String();
+    }
+    
+
     Path relativePath = Paths.get("compressed-images\\").normalize();
     private final String OUTPUT_DIRECTORY = relativePath.toAbsolutePath().toString();
 
@@ -34,9 +47,13 @@ public class Komprimierer {
     private UserService userService; // UserService für den Zugriff auf User-Daten
 
     // Komprimierung des Bildes
+    @CrossOrigin(origins = "http://localhost:3000")  // Frontend-Domain
+
     @PostMapping("/compress")
     public String compressImage(@RequestParam("image") MultipartFile image,
                                 @RequestParam("userId") Long userId) {
+    System.out.println("User ID: " + userId);
+    System.out.println("Image name: " + image.getOriginalFilename());
 
         try {
             File directory = new File(OUTPUT_DIRECTORY);
@@ -57,6 +74,9 @@ public class Komprimierer {
 
             // Hole die Komprimierungsrate des Nutzers aus der DB
             User user = userService.getUserById(userId);
+            if (user == null) {
+                return "{\"success\": false, \"message\": \"User mit ID " + userId + " nicht gefunden\"}";
+                    }
             int komprimierungsrate = user != null ? user.getKomprimierung() : 50;  // Standardwert 50, falls kein User gefunden wird
 
             // Speicher das Bild temporär
@@ -82,7 +102,7 @@ public class Komprimierer {
                 String zugriffslink = "/api/image-compression/download/" + outputFileName;
                 if (user != null) {
                     userService.setZugriffslink(user, zugriffslink); // Setze den Zugriffslink
-                    return "Image successfully compressed. Download it here: " + zugriffslink;
+                    return "{ \"success\": true, \"zugriffslink\": \"" + zugriffslink + "\" }";
                 } else {
                     return "User not found.";
                 }
