@@ -18,7 +18,7 @@ public class UserService {
         User createdUser = userRepository.save(user);
 
         // Generiere den Zugriffslink basierend auf der ID des gespeicherten Nutzers
-        String zugriffslink = "/api/image-compression/upload?userId=" + createdUser.getId();
+        String zugriffslink = "http://localhost:8080/api/image-compression/upload?userId=" + createdUser.getId();
         
         // Setze den Zugriffslink für den Benutzer
         createdUser.setZugriffslink(zugriffslink);

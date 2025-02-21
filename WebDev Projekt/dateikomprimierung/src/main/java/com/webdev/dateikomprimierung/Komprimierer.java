@@ -28,18 +28,15 @@ import com.webdev.dateikomprimierung.service.UserService;
 @RequestMapping("/api/image-compression")
 public class Komprimierer {
 
-@GetMapping("/upload")
-public ResponseEntity<Void> redirectToIndex(@RequestParam("userId") Long userId) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Location", "/index.html?userId=" + userId);  // Füge userId zur Weiterleitung hinzu
-    return new ResponseEntity<>(headers, HttpStatus.FOUND);
-}
-
-    public String getMethodName(@RequestParam String param) {
-        return new String();
+    // Weiterleitung zur Index-Seite
+    @GetMapping("/upload")
+    public ResponseEntity<Void> redirectToIndex(@RequestParam("userId") Long userId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/index.html?userId=" + userId);  // Füge userId zur Weiterleitung hinzu
+        return new ResponseEntity<>(headers, HttpStatus.FOUND); // Rückgabe einer Weiterleitung (HTTP 302)
     }
-    
 
+    // Temporärer Pfad für komprimierte Bilder
     Path relativePath = Paths.get("compressed-images\\").normalize();
     private final String OUTPUT_DIRECTORY = relativePath.toAbsolutePath().toString();
 
@@ -50,12 +47,13 @@ public ResponseEntity<Void> redirectToIndex(@RequestParam("userId") Long userId)
     @CrossOrigin(origins = "http://localhost:3000")  // Frontend-Domain
 
     @PostMapping("/compress")
-    public String compressImage(@RequestParam("image") MultipartFile image,
-                                @RequestParam("userId") Long userId) {
-    System.out.println("User ID: " + userId);
-    System.out.println("Image name: " + image.getOriginalFilename());
+    public ResponseEntity<String> compressImage(@RequestParam("image") MultipartFile image,
+                                                @RequestParam("userId") Long userId) {
+        System.out.println("User ID: " + userId);
+        System.out.println("Image name: " + image.getOriginalFilename());
 
         try {
+            // Überprüfen, ob das Verzeichnis existiert, andernfalls erstellen
             File directory = new File(OUTPUT_DIRECTORY);
             if (!directory.exists()) {
                 directory.mkdirs();
@@ -63,23 +61,28 @@ public ResponseEntity<Void> redirectToIndex(@RequestParam("userId") Long userId)
 
             String originalFilename = image.getOriginalFilename();
             if (originalFilename == null) {
-                return "Invalid file. Please upload a valid image.";
+                // Fehlerbehandlung für ungültige Datei
+                return ResponseEntity.badRequest().body("{ \"success\": false, \"message\": \"Invalid file. Please upload a valid image.\" }");
             }
 
+            // Überprüfen des Content-Types der Datei
             String contentType = image.getContentType();
             List<String> allowedImageTypes = Arrays.asList("image/png", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/webp");
             if (!allowedImageTypes.contains(contentType)) {
-                return "Die Datei ist kein unterstütztes Bildformat.";
+                // Fehlerbehandlung für nicht unterstützte Bildformate
+                return ResponseEntity.badRequest().body("{ \"success\": false, \"message\": \"Die Datei ist kein unterstütztes Bildformat.\" }");
             }
 
             // Hole die Komprimierungsrate des Nutzers aus der DB
             User user = userService.getUserById(userId);
             if (user == null) {
-                return "{\"success\": false, \"message\": \"User mit ID " + userId + " nicht gefunden\"}";
-                    }
-            int komprimierungsrate = user != null ? user.getKomprimierung() : 50;  // Standardwert 50, falls kein User gefunden wird
+                // Fehlerbehandlung, falls der User nicht existiert
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{ \"success\": false, \"message\": \"User mit ID " + userId + " nicht gefunden\" }");
+            }
 
-            // Speicher das Bild temporär
+            int komprimierungsrate = user.getKomprimierung();  // Hole die Komprimierungsrate des Nutzers
+
+            // Speichern des Bildes und Komprimierung mit FFmpeg
             File inputFile = new File(OUTPUT_DIRECTORY, originalFilename);
             image.transferTo(inputFile);
             String outputFileName = "compressed-" + originalFilename;
@@ -95,24 +98,25 @@ public ResponseEntity<Void> redirectToIndex(@RequestParam("userId") Long userId)
             Process process = processBuilder.start();
             int exitCode = process.waitFor();
 
+            // Lösche das ursprüngliche Bild nach der Komprimierung
             inputFile.delete();
 
             if (exitCode == 0) {
                 // Generiere den Zugriffslink für den Benutzer
                 String zugriffslink = "/api/image-compression/download/" + outputFileName;
-                if (user != null) {
-                    userService.setZugriffslink(user, zugriffslink); // Setze den Zugriffslink
-                    return "{ \"success\": true, \"zugriffslink\": \"" + zugriffslink + "\" }";
-                } else {
-                    return "User not found.";
-                }
+                userService.setZugriffslink(user, zugriffslink); // Setze den Zugriffslink in der DB
+                
+                // Rückgabe einer erfolgreichen Antwort mit dem Zugriffslink als JSON
+                return ResponseEntity.ok("{ \"success\": true, \"zugriffslink\": \"" + zugriffslink + "\" }");
             } else {
-                return "Error during compression. FFmpeg exited with code: " + exitCode;
+                // Fehlerbehandlung für FFmpeg-Fehler
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{ \"success\": false, \"message\": \"Error during compression. FFmpeg exited with code: " + exitCode + "\" }");
             }
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            return "Error occurred during image compression: " + e.getMessage();
+            // Fehlerbehandlung für IO oder Unterbrechungsfehler
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{ \"success\": false, \"message\": \"Error occurred during image compression: " + e.getMessage() + "\" }");
         }
     }
 
@@ -122,13 +126,16 @@ public ResponseEntity<Void> redirectToIndex(@RequestParam("userId") Long userId)
         try {
             File file = new File(OUTPUT_DIRECTORY, filename);
             if (!file.exists()) {
+                // Fehlerbehandlung für nicht gefundene Datei
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
             FileSystemResource resource = new FileSystemResource(file);
+            // Rückgabe der Datei als Download-Link
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
                     .body(resource);
         } catch (Exception e) {
+            // Fehlerbehandlung für unerwartete Fehler
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
