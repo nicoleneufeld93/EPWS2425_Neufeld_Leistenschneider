@@ -1,6 +1,9 @@
 # EPWS2425_Neufeld_Leistenschneider
 <h1>Web-Anwendung zur Optimierung der Dateigrößen von Bild-, Video- & Audiodateien</h1>
 
+<h2>Installationsanleitung</h2>
+Die <a href="https://github.com/nicoleneufeld93/EPWS2425_Neufeld_Leistenschneider/wiki/Installationsanleitung" target="_blank">Installationsanleitung</a> befindet sich im Wiki.
+
 <h2>Problemstellung</h2>
 Da Dateien wie Bilder, Videos und Audiodateien immer hochauflösender und dadurch auch größer werden, entstehen durch die Dateimengen immer häufiger Probleme, da diese die Performance verringern oder sogar von Content-Management-Systemen (CMS) blockiert werden. Um hierbei Abhilfe zu schaffen, muss eine Web-Anwendung entwickelt werden, welche automatisch die Dateien optimiert und hierbei die Dateigröße verringert.
 
